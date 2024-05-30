@@ -1,0 +1,16 @@
+__astcache/
+__history/
+__recovery/
+out/
+Win64/
+Win32/
+cproj-cppcheck-build-dir/
+*.cppcheck
+Stereometry.dll
+*.o
+target-i686/
+.vscode/
+all.obj
+Figures/__astcache/
+Figures/__history/
+Figures/__recovery/
