@@ -48,38 +48,32 @@ for(GLuint i = 0; i<face_num; ++i) {
 }
 
 //Конструктор с привязкой к контексту
-Figure3d_unit::Figure3d_unit(const AppGLContext *glContext) :
+Figure3d_unit::Figure3d_unit(const
+  std::weak_ptr<const AppGLContext>& glContext) :
   glContext(glContext), Scale(1.0), Scale_old(1.0),
   Offset(0.0), Offset_old(0.0)  {
-if(glContext == nullptr) return;
-ContextValidityFlag = glContext->GetValidityFlagSPtr();
-if(*ContextValidityFlag &&
-  glContext->HasVertexBufferObject())  {
+auto ctx = glContext.lock();
+if(ctx && ctx->HasVertexBufferObject())  {
   draw_arr.clear();
   draw_arr.shrink_to_fit();
-  glContext->GenBuffers(1, &_vbo);
+  ctx->GenBuffers(1, &_vbo);
 }
 }
 
 //Заменить контекст отрисовки
-void Figure3d_unit::ReplaceContext(
-  const AppGLContext *other)    {
-if(glContext == other) return;
-if(glContext != nullptr)    {
-  if(*ContextValidityFlag &&
-    glContext->HasVertexBufferObject())  {
-    glContext->DeleteBuffers(1, &_vbo);
-    _vbo = 0;
-  }
-  ContextValidityFlag.reset();
+void Figure3d_unit::ReplaceContext(const
+  std::weak_ptr<const AppGLContext>& other)    {
+auto ctx = glContext.lock();
+auto ctx_o = other.lock();
+if(ctx == ctx_o) return;
+if(ctx && ctx->HasVertexBufferObject())  {
+  ctx->DeleteBuffers(1, &_vbo);
+  _vbo = 0;
 }
+ctx.reset();
 glContext = other;
-if(glContext != nullptr)    {
-  ContextValidityFlag = glContext->GetValidityFlagSPtr();
-  if(*ContextValidityFlag &&
-    glContext->HasVertexBufferObject())  {
-    glContext->GenBuffers(1, &_vbo);
-  }
+if(ctx_o && ctx_o->HasVertexBufferObject())  {
+  ctx_o->GenBuffers(1, &_vbo);
 }
 _draw_buf_upd_flag = true;
 }
@@ -98,13 +92,11 @@ Figure3d_unit::Figure3d_unit(const Figure3d_unit &other) :
   _n_d_vertex(other._n_d_vertex),
   Scale(other.Scale), Scale_old(other.Scale_old),
   Offset(other.Offset), Offset_old(other.Offset_old)  {
-if(glContext == nullptr) return;
-ContextValidityFlag = glContext->GetValidityFlagSPtr();
-if(*ContextValidityFlag &&
-  glContext->HasVertexBufferObject())  {
+auto ctx = glContext.lock();
+if(ctx && ctx->HasVertexBufferObject())  {
   draw_arr.clear();
   draw_arr.shrink_to_fit();
-  glContext->GenBuffers(1, &_vbo);
+  ctx->GenBuffers(1, &_vbo);
 }
 }
 
@@ -126,26 +118,23 @@ no_vec_normals = other.no_vec_normals;
 _n_d_face = other._n_d_face;
 _n_d_vertex = other._n_d_vertex;
 ReplaceContext(other.glContext);
-_vbo = 0;
 _draw_buf_upd_flag = true;
 return *this;
 }
 
 Figure3d_unit::~Figure3d_unit() {
-if(glContext == nullptr || !*ContextValidityFlag) return;
-if(glContext->HasVertexBufferObject())  {
-  glContext->DeleteBuffers(1, &_vbo);
+auto ctx = glContext.lock();
+if(ctx && ctx->HasVertexBufferObject())  {
+  ctx->DeleteBuffers(1, &_vbo);
 }
 }
 
 //Подготовить содержимое draw_arr (gl<1.5) или vbo (gl>=1.5)
 void Figure3d_unit::_PrepareBuffers() const   {
-if(glContext == nullptr)
-  throw std::runtime_error("glContext is not assigned");
-
-if(!*ContextValidityFlag)
-  throw std::runtime_error(
+auto ctx = glContext.lock();
+if(!ctx) throw std::runtime_error(
     "glContext is invalid/deleted/not ready");
+
 //TODO: Отделить мировые координаты от сценических
 const int data_size = 18*_n_d_face;
 const bool nfn_flag = no_vec_normals;
@@ -179,13 +168,12 @@ for(GLuint i = 0; i<_n_d_face; ++i)    {
   }
 }
 
-if(glContext->HasVertexBufferObject())  {
+if(ctx->HasVertexBufferObject())  {
   //Перемещение данных в vbo
-  glContext->BindBuffer(GL_ARRAY_BUFFER, _vbo);
-  glContext->BufferData(GL_ARRAY_BUFFER,
+  ctx->BindBuffer(GL_ARRAY_BUFFER, _vbo);
+  ctx->BufferData(GL_ARRAY_BUFFER,
     data_size*sizeof(GLfloat),
     draw_arr.data(), GL_STATIC_DRAW);
-  glContext->BindBuffer(GL_ARRAY_BUFFER, 0);
 
   //Обработка случая недостатка видеопамяти
   bool out_of_memory = false;
@@ -197,11 +185,13 @@ if(glContext->HasVertexBufferObject())  {
       break;
     default:
       //TODO: Сделать нормальный обработчик ошибок
-            break;
+      break;
     }
   }
+
+  ctx->BindBuffer(GL_ARRAY_BUFFER, 0);
   if(out_of_memory)   {
-    glContext->DeleteBuffers(1, &_vbo);
+    ctx->DeleteBuffers(1, &_vbo);
     _vbo = 0;
   }
   else    {
@@ -213,12 +203,10 @@ if(glContext->HasVertexBufferObject())  {
 
 //Выполнить отрисовку фигуры
 void Figure3d_unit::Draw() const    {
-if(glContext == nullptr)
-  throw std::runtime_error("glContext is not assigned");
-
-if(!*ContextValidityFlag)
-  throw std::runtime_error(
+auto ctx = glContext.lock();
+if(!ctx) throw std::runtime_error(
     "glContext is invalid/deleted/not ready");
+
 //обновить draw_array, если есть необходимость
 if(_draw_buf_upd_flag)  {
   _PrepareBuffers();
@@ -226,8 +214,8 @@ if(_draw_buf_upd_flag)  {
 }
 
 //Структура данных в draw_arr или vbo
-if(glContext->HasVertexBufferObject())  {
-  glContext->BindBuffer(GL_ARRAY_BUFFER, _vbo);
+if(ctx->HasVertexBufferObject())  {
+  ctx->BindBuffer(GL_ARRAY_BUFFER, _vbo);
 }
 glInterleavedArrays(GL_N3F_V3F, 0,
   _vbo ? 0 : draw_arr.data());
@@ -238,8 +226,8 @@ glDrawArrays(GL_TRIANGLES, 0, _n_d_face*3);
 //Вернуть состояние по-умолчанию
 glDisableClientState(GL_VERTEX_ARRAY);
 glDisableClientState(GL_NORMAL_ARRAY);
-if(glContext->HasVertexBufferObject())  {
-  glContext->BindBuffer(GL_ARRAY_BUFFER, 0);
+if(ctx->HasVertexBufferObject())  {
+  ctx->BindBuffer(GL_ARRAY_BUFFER, 0);
 }
 }
 

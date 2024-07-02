@@ -51,9 +51,6 @@ private:
   //Список вспом. фигур (для операций над фигурами)
   //(владеющий)
   std::vector<Figure3d_unit*> Figure_satellite;
-  //Флаг для отслеживания, что контекст всё ещё валиден
-  std::shared_ptr<bool> ValidityFlag =
-    std::make_shared<bool>(false);
   //Указатель на выбранную фигуру
   Figure3d_unit* fig_selection = nullptr;
   //Контекст отрисовки и окна (OpenGL) (владеющие)
@@ -64,6 +61,7 @@ private:
   int wWidth = 0, wHeight = 0;
   //Режим взаимодействия с фигурой
   F2Mode fig_mode = F2Normal;
+  std::weak_ptr<const AppGLContext> self;
 
   //Функции расширения ARB_vertex_buffer_object (gl>=1.5)
   PFNGLBINDBUFFERPROC glBindBuffer;
@@ -94,6 +92,8 @@ private:
   void Setup_GL_extensions();
   //Удалить вспомогательные фигуры
   void ClearSatellite();
+
+  AppGLContext(HWND hwnd, int width, int height);
 public:
   //Настройка графического окна и матрицы проекции
   void Setup_viewPort(int width, int height);
@@ -134,10 +134,6 @@ public:
   inline void SetSelectedFig(Figure3d_unit* fig)  {
   fig_selection = fig;
   }
-  inline std::shared_ptr<const bool> GetValidityFlagSPtr()
-    const {
-  return std::shared_ptr<const bool>(ValidityFlag);
-  }
   //Обработчик простого нажатия
   void CtrlSimpleClick(int X, int Y);
   //Обработчик пользовательского поворота камеры
@@ -155,14 +151,19 @@ public:
   return fig_mode;
   }
   //Создать и выбрать контексты окна и отрисовки OpenGL
-  AppGLContext(HWND hwnd, int width, int height);
+  static std::shared_ptr<AppGLContext>
+    Create(HWND hwnd, int width, int height) {
+    auto ctx = std::shared_ptr<AppGLContext>(
+      new AppGLContext(hwnd, width, height));
+    ctx->self = ctx;
+    return ctx;
+  }
   ~AppGLContext();
   //Копировать контекст нельзя
   AppGLContext(AppGLContext&) = delete;
   AppGLContext& operator=(AppGLContext&) = delete;
-  //Перемещать контекст можно
-  AppGLContext(AppGLContext&&) = default;
-  AppGLContext& operator=(AppGLContext&&) = default;
+  AppGLContext(AppGLContext&&) = delete;
+  AppGLContext& operator=(AppGLContext&&) = delete;
 
   //Функции расширения ARB_vertex_buffer_object (gl>=1.5)
   inline bool HasVertexBufferObject() const {
@@ -185,4 +186,5 @@ public:
   glBufferData(target, size, data, usage);
   }
 };
+
 #endif

@@ -22,7 +22,7 @@ constexpr double RAD2DEG = 180.0/M_PI;
 
 //Конструктор с коэф. уравнения плоскости
 Plane::Plane(double a, double b, double c, double d) :
-  Figure3d_unit(nullptr)  {
+  Figure3d_unit(std::weak_ptr<const AppGLContext>())  {
 this->a = c==0.0f ? 90.0 : RAD2DEG*std::atan2(
   std::sqrt(a*a+b*b), c);
 this->b = 90.0+RAD2DEG*std::atan2(b, a);

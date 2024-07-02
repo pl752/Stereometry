@@ -20,7 +20,9 @@ protected:
   void _Calculate_inds(GLuint _n_slices);
 public:
   // онструктор с кол-вом сечений вращени€
-  Cone_fig(const AppGLContext *glContext, GLuint slices);
+  Cone_fig(const
+    std::weak_ptr<const AppGLContext>& glContext,
+    GLuint slices);
   Cone_fig(const Cone_fig &other) : Figure3d_unit(other) {}
   Cone_fig& operator=(const Cone_fig &other) {
     Figure3d_unit::operator=(other);

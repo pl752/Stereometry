@@ -17,7 +17,8 @@
 
 class STLLoadableFig : public Figure3d_unit {
 public:
-  STLLoadableFig(const AppGLContext *glContext,
+  STLLoadableFig(const
+    std::weak_ptr<const AppGLContext>& glContext,
     const char* filename);
   STLLoadableFig(const STLLoadableFig &other) :
     Figure3d_unit(other) {}

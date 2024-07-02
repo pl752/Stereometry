@@ -19,7 +19,8 @@
 #pragma package(smart_init)
 
 // онструктор с кол-вом сечений вращени€ (гор. и верт.)
-UV_Sphere_fig::UV_Sphere_fig(const AppGLContext *glContext,
+UV_Sphere_fig::UV_Sphere_fig(const
+    std::weak_ptr<const AppGLContext>& glContext,
   GLuint u_slices, GLuint v_slices)
   : Figure3d_unit(glContext)  {
 _n_d_face = u_slices*(v_slices-1)*2;
@@ -108,7 +109,8 @@ indices_arr[ind-2] = vert-_nu_slices;
 extern "C" {
 DLLSO void* NewUVSphere(const void* glContext,
   unsigned int u_slices, unsigned int v_slices)    {
-return new UV_Sphere_fig((AppGLContext*)glContext,
+return new UV_Sphere_fig(*((const
+  std::weak_ptr<const AppGLContext>*)glContext),
   u_slices, v_slices);
 }
 }

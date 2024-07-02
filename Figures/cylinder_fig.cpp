@@ -21,7 +21,8 @@
 #pragma package(smart_init)
 
 // онструктор с кол-вом сечений вращени€
-Cylinder_fig::Cylinder_fig(const AppGLContext *glContext,
+Cylinder_fig::Cylinder_fig(const
+  std::weak_ptr<const AppGLContext>& glContext,
   GLuint slices) : Figure3d_unit(glContext)  {
 _n_d_face = slices * 4;
 _n_d_vertex = slices * 2 + 2;
@@ -127,7 +128,8 @@ std::iota(flat_face_arr.begin(),
 extern "C" {
 DLLSO void* NewCylinder(const void* glContext,
   unsigned int slices)    {
-return new Cylinder_fig((AppGLContext*)glContext, slices);
+return new Cylinder_fig(*((const
+  std::weak_ptr<const AppGLContext>*)glContext), slices);
 }
 }
 #endif

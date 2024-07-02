@@ -19,9 +19,10 @@
 //(кол-во вершин в грани одинаково)
 class ArrayFig : public Figure3d_unit   {
 public:
-  ArrayFig(const AppGLContext *glContext, const double *verts,
-    const GLuint *inds, GLuint num_verts,
-    GLuint num_inds, GLuint vert_per_face);
+  ArrayFig(const
+    std::weak_ptr<const AppGLContext>& glContext,
+    const double *verts, const GLuint *inds,
+    GLuint num_verts, GLuint num_inds, GLuint vert_per_face);
   ArrayFig(const ArrayFig &other) :
     Figure3d_unit(other) {}
   Figure3d_unit* VirtualCopy() const override   {
@@ -29,17 +30,17 @@ public:
   }
   ArrayFig(ArrayFig&&) = default;
 
-  static ArrayFig* NewTetrahedron(
-    const AppGLContext *glContext);
-  static ArrayFig* NewCube(
-    const AppGLContext *glContext);
-  static ArrayFig* NewOctahedron(
-    const AppGLContext *glContext);
-  static ArrayFig* NewDodecahedron(
-    const AppGLContext *glContext);
-  static ArrayFig* NewIcosahedron(
-    const AppGLContext *glContext);
-  static ArrayFig* NewRhombicdodecahedron(
-    const AppGLContext *glContext);
+  static ArrayFig* NewTetrahedron(const
+  std::weak_ptr<const AppGLContext>& glContext);
+  static ArrayFig* NewCube(const
+  std::weak_ptr<const AppGLContext>& glContext);
+  static ArrayFig* NewOctahedron(const
+  std::weak_ptr<const AppGLContext>& glContext);
+  static ArrayFig* NewDodecahedron(const
+  std::weak_ptr<const AppGLContext>& glContext);
+  static ArrayFig* NewIcosahedron(const
+  std::weak_ptr<const AppGLContext>& glContext);
+  static ArrayFig* NewRhombicdodecahedron(const
+  std::weak_ptr<const AppGLContext>& glContext);
 };
 #endif

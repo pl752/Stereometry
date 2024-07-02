@@ -25,7 +25,9 @@ constexpr double M_SQRT1_2 = M_SQRT2/2.0;
 #endif
 
 // онструктор с кол-вом сечений вращени€
-Cone_fig::Cone_fig(const AppGLContext *glContext, GLuint slices)
+Cone_fig::Cone_fig(const
+  std::weak_ptr<const AppGLContext>& glContext,
+  GLuint slices)
   : Figure3d_unit(glContext)  {
 _n_d_face = slices * 2;
 _n_d_vertex = slices * 2 + 1;
@@ -118,8 +120,10 @@ std::iota(flat_face_arr.begin(),
 #endif
 
 extern "C" {
-DLLSO void* NewCone(const void* glContext, unsigned int slices)  {
-return new Cone_fig((AppGLContext*)glContext, slices);
+DLLSO void* NewCone(const void* glContext,
+  unsigned int slices)  {
+return new Cone_fig(*((const
+  std::weak_ptr<const AppGLContext>*)glContext), slices);
 }
 }
 #endif

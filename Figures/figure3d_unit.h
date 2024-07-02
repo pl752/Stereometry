@@ -35,7 +35,7 @@ class Figure3d_unit {
 private:
 protected:
   //Контекст отрисовки (OpenGL) (не владеющий указатель)
-  const AppGLContext *glContext;
+  std::weak_ptr<const AppGLContext> glContext;
   double sphere_radius = 1.0; //Радиус охватывающей сферы
   glm::dvec3 Offset; //Текущая позиция центра фигуры
   glm::dvec3 Offset_old; //Прошлая позиция центра фигуры
@@ -59,8 +59,6 @@ protected:
   mutable GLuint _vbo = 0;
   //Флаг необходимости обновить draw_arr
   mutable bool _draw_buf_upd_flag = true;
-  //Флаг для отслеживания готовности контекста
-  std::shared_ptr<const bool> ContextValidityFlag;
   //Флаг отсутствия повершинных нормалей
   bool no_vec_normals = false;
   //Пересчитать координаты вершин после масштабирования
@@ -75,7 +73,7 @@ protected:
   void _Calc_Bound_Sphere();
 public:
   //Конструктор с привязкой к контексту
-  Figure3d_unit(const AppGLContext *glContext);
+  Figure3d_unit(const std::weak_ptr<const AppGLContext>&);
   virtual ~Figure3d_unit();
   //Копирование
   Figure3d_unit(const Figure3d_unit &other);
@@ -87,7 +85,8 @@ public:
   Figure3d_unit(Figure3d_unit&&) = default;
   Figure3d_unit& operator=(Figure3d_unit&&) = default;
   //Заменить контекст отрисовки
-  void ReplaceContext(const AppGLContext *other);
+  void ReplaceContext(const
+    std::weak_ptr<const AppGLContext>& other);
   //Задать масштаб фигуры
   void Resize(double x, double y, double z);
   //Повернуть фигуру (Эйлера XYZ) радианы

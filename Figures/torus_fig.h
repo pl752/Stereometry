@@ -24,7 +24,8 @@ protected:
 public:
   //Конструктор с кол-вом сечений вращения и радиусами
   //(гор и верт)
-  Torus_fig(const AppGLContext *glContext,
+  Torus_fig(const
+    std::weak_ptr<const AppGLContext>& glContext,
     GLuint u_slices, GLuint v_slices,
     double u_rad, double v_rad);
   Torus_fig(const Torus_fig &other) :

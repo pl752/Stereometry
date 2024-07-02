@@ -22,7 +22,8 @@ public:
   //Конструкторы с коэф. уравнения плоскости
   Plane(double a, double b, double c, double d);
   Plane(const double *p) : Plane(p[0], p[1], p[2], p[3]) {}
-  Plane(const Plane &other) : Figure3d_unit(nullptr),
+  Plane(const Plane &other) : Figure3d_unit(
+    std::weak_ptr<const AppGLContext>()),
     a(other.a), b(other.b), d(other.d) {}
   Plane& operator=(const Plane& other)  {
     if(this == &other) return *this;

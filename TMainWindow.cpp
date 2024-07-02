@@ -35,30 +35,30 @@ Parent = TreeView1->Items->Add(0, "Платоновы тела");
 Node = TreeView1->Items->AddChild(Parent, "Тетраэдр");
 Node->Data = (void*)[](){
   MainWindow->AddFigure(
-    ArrayFig::NewTetrahedron(MainWindow->glContext.get()),
+    ArrayFig::NewTetrahedron(MainWindow->glContextWeak),
     "Тетраэдр");
 };
 Node = TreeView1->Items->AddChild(Parent, "Куб");
 Node->Data = (void*)[](){
   MainWindow->AddFigure(
-    ArrayFig::NewCube(MainWindow->glContext.get()), "Куб");
+    ArrayFig::NewCube(MainWindow->glContextWeak), "Куб");
 };
 Node = TreeView1->Items->AddChild(Parent, "Октаэдр");
 Node->Data = (void*)[](){
   MainWindow->AddFigure(
-    ArrayFig::NewOctahedron(MainWindow->glContext.get()),
+    ArrayFig::NewOctahedron(MainWindow->glContextWeak),
     "Октаэдр");
 };
 Node = TreeView1->Items->AddChild(Parent, "Икосаэдр");
 Node->Data = (void*)[](){
   MainWindow->AddFigure(
-    ArrayFig::NewIcosahedron(MainWindow->glContext.get()),
+    ArrayFig::NewIcosahedron(MainWindow->glContextWeak),
     "Икосаэдр");
 };
 Node = TreeView1->Items->AddChild(Parent, "Додекаэдр");
 Node->Data = (void*)[](){
   MainWindow->AddFigure(
-    ArrayFig::NewDodecahedron(MainWindow->glContext.get()),
+    ArrayFig::NewDodecahedron(MainWindow->glContextWeak),
     "Додекаэдр");
 };
 Node = TreeView1->Items->
@@ -66,41 +66,40 @@ Node = TreeView1->Items->
 Node->Data = (void*)[](){
   MainWindow->AddFigure(
     ArrayFig::NewRhombicdodecahedron(
-      MainWindow->glContext.get()),
-    "Ромбододекаэдр");
+    MainWindow->glContextWeak), "Ромбододекаэдр");
 };
 
 Parent = TreeView1->Items->Add(0, "Тела вращения");
 Node = TreeView1->Items->AddChild(Parent, "Конус");
 Node->Data = (void*)[](){
   MainWindow->AddFigure(new Cone_fig(
-      MainWindow->glContext.get(), 100),
+      MainWindow->glContextWeak, 100),
     "Конус");
 };
 Node = TreeView1->Items->AddChild(Parent, "Цилиндр");
 Node->Data = (void*)[](){
   MainWindow->AddFigure(
-    new Cylinder_fig(MainWindow->glContext.get(), 100),
+    new Cylinder_fig(MainWindow->glContextWeak, 100),
     "Цилиндр");
 };
 Node = TreeView1->Items->AddChild(Parent, "Сфера (глобус)");
 Node->Data = (void*)[](){
   MainWindow->AddFigure(
-    new UV_Sphere_fig(MainWindow->glContext.get(), 100, 50),
+    new UV_Sphere_fig(MainWindow->glContextWeak, 100, 50),
     "Сфера (глобус)");
 };
 Node = TreeView1->Items->AddChild(Parent, "Бублик");
 Node->Data = (void*)[](){
   MainWindow->AddFigure(
     new Torus_fig(
-      MainWindow->glContext.get(), 100, 100, 1.0, 0.5),
+      MainWindow->glContextWeak, 100, 100, 1.0, 0.5),
     "Бублик");
 };
 
 Parent = TreeView1->Items->Add(0, "Операции");
 Node = TreeView1->Items->AddChild(Parent, "Сечение");
 Node->Data = (void*)[](){
-  if(MainWindow->GetGLContext()->SetCuttingMode()) {
+  if(MainWindow->glContext->SetCuttingMode()) {
     MainWindow->UpdateButtons();
     MainWindow->glContext->DrawFrame();
   }
@@ -113,7 +112,7 @@ Node->Data = (void*)[](){
     AnsiString ansiLine(
       MainWindow->STLOpenDialog->FileName.c_str());
     MainWindow->AddFigure(
-      new STLLoadableFig(MainWindow->glContext.get(),
+      new STLLoadableFig(MainWindow->glContextWeak,
       ansiLine.c_str()), ansiLine.c_str());
   }
 };
@@ -121,12 +120,12 @@ Node->Data = (void*)[](){
 Node = TreeView1->Items->AddChild(Parent,
   "Копировать фигуру");
 Node->Data = (void*)[](){
-auto fig = MainWindow->glContext->GetSelectedFig();
-if(fig != nullptr)
-  MainWindow->AddFigure(
-    fig->VirtualCopy(),
-    AnsiString(MainWindow->ListView1->Selected->
-      Caption).c_str());
+  auto fig = MainWindow->glContext->GetSelectedFig();
+  if(fig != nullptr)
+    MainWindow->AddFigure(
+      fig->VirtualCopy(),
+      AnsiString(MainWindow->ListView1->Selected->
+        Caption).c_str());
 };
 }
 
@@ -231,8 +230,8 @@ if(fig != nullptr)  {
 void __fastcall TMainWindow::FormCreate(
   TObject *Sender)  {
 //Создать и выбрать контексты окна и отрисовки OpenGL
-glContext = std::make_unique<AppGLContext>(Panel1->Handle,
-    Panel1->Width, Panel1->Height);
+glContextWeak = glContext = AppGLContext::Create(
+  Panel1->Handle, Panel1->Width, Panel1->Height);
 //Завершить подготовку формы
 KeyPreview = true;
 FillFigureList();

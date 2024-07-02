@@ -16,7 +16,8 @@
 //----------------------------------------------------------
 #pragma package(smart_init)
 
-STLLoadableFig::STLLoadableFig(const AppGLContext *glContext,
+STLLoadableFig::STLLoadableFig(const
+  std::weak_ptr<const AppGLContext>& glContext,
   const char* filename) : Figure3d_unit(glContext)    {
 std::vector<unsigned int> solids_arr;
 stl_reader::ReadStlFile<std::vector<double>,
@@ -42,7 +43,7 @@ extern "C" {
 DLLSO void* NewSTLLoadableFig(const void* glContext,
   const char* filename)    {
 return new STLLoadableFig(
-  L(AppGLContext*)glContext, filename);
+  (AppGLContext*)glContext, filename);
 }
 }
 #endif

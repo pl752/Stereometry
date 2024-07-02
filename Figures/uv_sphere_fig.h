@@ -22,7 +22,8 @@ protected:
     GLuint _nv_slices);
 public:
   // онструктор с кол-вом сечений вращени€ (гор. и верт.)
-  UV_Sphere_fig(const AppGLContext *glContext,
+  UV_Sphere_fig(const
+    std::weak_ptr<const AppGLContext>& glContext,
     GLuint u_slices, GLuint v_slices);
   UV_Sphere_fig(const UV_Sphere_fig &other) :
     Figure3d_unit(other) {}

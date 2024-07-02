@@ -19,7 +19,8 @@
 
 //Конструктор с кол-вом сечений вращения и радиусами
 //(гор и верт)
-Torus_fig::Torus_fig(const AppGLContext *glContext,
+Torus_fig::Torus_fig(const
+    std::weak_ptr<const AppGLContext>& glContext,
   GLuint u_slices, GLuint v_slices,
   double u_rad, double v_rad) : Figure3d_unit(glContext) {
 _n_d_face = u_slices*v_slices*2;
@@ -113,7 +114,8 @@ extern "C" {
 DLLSO void* NewTorus(const void* glContext,
   unsigned int u_slices, unsigned int v_slices,
   double u_rad, double v_rad)    {
-return new Torus_fig((AppGLContext*)glContext,
+return new Torus_fig(*((const
+  std::weak_ptr<const AppGLContext>*)glContext),
   u_slices, v_slices, u_rad, v_rad);
 }
 }

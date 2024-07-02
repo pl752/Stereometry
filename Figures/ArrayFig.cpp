@@ -218,7 +218,8 @@ constexpr GLuint rhombicdodecahedron_i[
 };
 
 
-ArrayFig::ArrayFig(const AppGLContext *glContext,
+ArrayFig::ArrayFig(const
+  std::weak_ptr<const AppGLContext>& glContext,
   const double *verts, const GLuint *inds,
   GLuint num_verts, GLuint num_faces,
   GLuint vert_per_face) : Figure3d_unit(glContext)  {
@@ -243,43 +244,43 @@ _Calc_Tri_Normals();
 MakePermanentlyFlat();
 }
 
-ArrayFig* ArrayFig::NewTetrahedron(
-  const AppGLContext *glContext)    {
+ArrayFig* ArrayFig::NewTetrahedron(const
+  std::weak_ptr<const AppGLContext>& glContext)    {
 return new ArrayFig(glContext, tetrahedron_v, tetrahedron_i,
   TETRAHEDRON_NUM_VERT, TETRAHEDRON_NUM_FACES,
     TETRAHEDRON_NUM_EDGE_PER_FACE);
 }
 
-ArrayFig* ArrayFig::NewCube(
-  const AppGLContext *glContext)   {
+ArrayFig* ArrayFig::NewCube(const
+  std::weak_ptr<const AppGLContext>& glContext)   {
 return new ArrayFig(glContext, cube_v, cube_i,
   CUBE_NUM_VERT, CUBE_NUM_FACES, CUBE_NUM_EDGE_PER_FACE);
 }
 
-ArrayFig* ArrayFig::NewOctahedron(
-  const AppGLContext *glContext) {
+ArrayFig* ArrayFig::NewOctahedron(const
+  std::weak_ptr<const AppGLContext>& glContext) {
 return new ArrayFig(glContext, octahedron_v, octahedron_i,
   OCTAHEDRON_NUM_VERT, OCTAHEDRON_NUM_FACES,
   OCTAHEDRON_NUM_EDGE_PER_FACE);
 }
 
-ArrayFig* ArrayFig::NewDodecahedron(
-  const AppGLContext *glContext)   {
+ArrayFig* ArrayFig::NewDodecahedron(const
+  std::weak_ptr<const AppGLContext>& glContext)   {
 return new ArrayFig(glContext,
   dodecahedron_v, dodecahedron_i,
   DODECAHEDRON_NUM_VERT, DODECAHEDRON_NUM_FACES,
   DODECAHEDRON_NUM_EDGE_PER_FACE);
 }
 
-ArrayFig* ArrayFig::NewIcosahedron(
-  const AppGLContext *glContext)    {
+ArrayFig* ArrayFig::NewIcosahedron(const
+  std::weak_ptr<const AppGLContext>& glContext)    {
 return new ArrayFig(glContext, icosahedron_v, icosahedron_i,
   ICOSAHEDRON_NUM_VERT, ICOSAHEDRON_NUM_FACES,
   ICOSAHEDRON_NUM_EDGE_PER_FACE);
 }
 
-ArrayFig* ArrayFig::NewRhombicdodecahedron(
-  const AppGLContext *glContext)    {
+ArrayFig* ArrayFig::NewRhombicdodecahedron(const
+  std::weak_ptr<const AppGLContext>& glContext)    {
 return new ArrayFig(glContext,
   rhombicdodecahedron_v, rhombicdodecahedron_i,
   RHOMBICDODECAHEDRON_NUM_VERT,
@@ -301,33 +302,39 @@ DLLSO void* NewArrayFig(const void* glContext,
   const double *verts, const unsigned int *inds,
   unsigned int num_verts, unsigned int num_faces,
   unsigned int vert_per_face)    {
-return new ArrayFig((AppGLContext*)glContext, verts, inds,
-  num_verts, num_faces, vert_per_face);
+return new ArrayFig(*((const
+  std::weak_ptr<const AppGLContext>*)glContext),
+  verts, inds, num_verts, num_faces, vert_per_face);
 }
 
 DLLSO void* NewTetrahedron(const void* glContext)    {
-return ArrayFig::NewTetrahedron((AppGLContext*)glContext);
+return ArrayFig::NewTetrahedron(*((const
+  std::weak_ptr<const AppGLContext>*)glContext));
 }
 
 DLLSO void* NewCube(const void* glContext)    {
-return ArrayFig::NewCube((AppGLContext*)glContext);
+return ArrayFig::NewCube(*((const
+  std::weak_ptr<const AppGLContext>*)glContext));
 }
 
 DLLSO void* NewOctahedron(const void* glContext)    {
-return ArrayFig::NewOctahedron((AppGLContext*)glContext);
+return ArrayFig::NewOctahedron(*((const
+  std::weak_ptr<const AppGLContext>*)glContext));
 }
 
 DLLSO void* NewDodecahedron(const void* glContext)    {
-return ArrayFig::NewDodecahedron((AppGLContext*)glContext);
+return ArrayFig::NewDodecahedron(*((const
+  std::weak_ptr<const AppGLContext>*)glContext));
 }
 
 DLLSO void* NewIcosahedron(const void* glContext)    {
-return ArrayFig::NewIcosahedron((AppGLContext*)glContext);
+return ArrayFig::NewIcosahedron(*((const
+  std::weak_ptr<const AppGLContext>*)glContext));
 }
 
 DLLSO void* NewRhombicdodecahedron(const void* glContext) {
-return ArrayFig::NewRhombicdodecahedron(
-  (AppGLContext*)glContext);
+return ArrayFig::NewRhombicdodecahedron(*((const
+  std::weak_ptr<const AppGLContext>*)glContext));
 }
 }
 #endif

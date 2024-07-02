@@ -20,7 +20,9 @@ protected:
   void _Calculate_inds(GLuint _n_slices);
 public:
   // онструктор с кол-вом сечений вращени€
-  Cylinder_fig(const AppGLContext *glContext, GLuint slices);
+  Cylinder_fig(const
+    std::weak_ptr<const AppGLContext>& glContext,
+    GLuint slices);
   Cylinder_fig(const Cylinder_fig &other) :
     Figure3d_unit(other) {}
   Cylinder_fig& operator=(const Cylinder_fig &other) {

@@ -84,7 +84,9 @@ __published:  // IDE-managed Components
   void __fastcall Item_edit_btnClick(TObject *Sender);
 private:  // User declarations
   //Контекст отрисовки и окна (OpenGL) (владеющий указатель)
-  std::unique_ptr<AppGLContext> glContext;
+  std::shared_ptr<AppGLContext> glContext;
+  //Контекст отрисовки и окна (OpenGL) (владеющий указатель)
+  std::weak_ptr<const AppGLContext> glContextWeak;
   //Список фигур для очистки (владеющий)
   std::vector<Figure3d_unit*> OwnedFigures;
   //Соответствие фигуры пункту в списке созд. фигур
@@ -101,8 +103,8 @@ private:  // User declarations
   void UpdateButtons();
 public:    // User declarations
   //Получить контекст OpenGL
-  inline AppGLContext* GetGLContext() const {
-  return glContext.get();
+  inline std::weak_ptr<AppGLContext> GetGLContext() const {
+  return glContext;
   }
   //Добавить фигуру в пространство и зарегистрировать
   //в списке под заданным именем

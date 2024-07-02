@@ -123,7 +123,6 @@ Setup_viewPort(width, height);
 Setup_camera();
 Setup_GL_Params();
 if(gl_shaders) Setup_Shaders();
-*ValidityFlag = true;
 }
 
 //Включить и настроить параметры опций OpenGL
@@ -284,7 +283,6 @@ for(int i = 0; i<6; ++i)    {
 }
 
 AppGLContext::~AppGLContext()   {
-*ValidityFlag = false;
 //Чистим собственные фигуры
 ClearSatellite();
 //Чистим шейдеры
@@ -378,7 +376,7 @@ case F2CuttingFig:
     if(Figure_satellite.size()<2)   {
     //Первые две вершины отмечаем вспомогательным
     //икосаэдром в точках нажатий
-      auto ico = ArrayFig::NewIcosahedron(this);
+      auto ico = ArrayFig::NewIcosahedron(self);
       ico->Resize(0.1, 0.1, 0.1);
       ico->Move(pt[0], pt[1], pt[2]);
       Figure_satellite.push_back(ico);
@@ -473,11 +471,36 @@ return false;
 extern "C" {
 DLLSO void* CreateAppGLContext(void *hwnd,
   int width, int height)    {
-return new AppGLContext((HWND)hwnd, width, height);
+return new std::shared_ptr<AppGLContext>(
+  AppGLContext::Create((HWND)hwnd, width, height));
 }
 
-DLLSO void DestroyAppGLContext(void *glContext)    {
-delete ((AppGLContext*)glContext);
+DLLSO void* CloneAppGLStrongPtr(void *glContext)    {
+return new std::shared_ptr<AppGLContext>(
+ *((std::shared_ptr<AppGLContext>*)glContext));
+}
+
+DLLSO void* CloneAppGLWeakPtr(void *glContext)    {
+return new std::weak_ptr<AppGLContext>(
+ *((std::weak_ptr<AppGLContext>*)glContext));
+}
+
+DLLSO void* GetAppGLWeakPtrFromStrong(void *glContext)    {
+return new std::weak_ptr<AppGLContext>(
+ *((std::shared_ptr<AppGLContext>*)glContext));
+}
+
+DLLSO void* GetAppGLStrongPtrFromWeak(void *glContext)    {
+return new std::shared_ptr<AppGLContext>(
+ ((std::weak_ptr<AppGLContext>*)glContext)->lock());
+}
+
+DLLSO void DestroyAppGLStrongPtr(void *glContext)    {
+delete ((std::shared_ptr<AppGLContext>*)glContext);
+}
+
+DLLSO void DestroyAppGLWeakPtr(void *glContext)    {
+delete ((std::weak_ptr<AppGLContext>*)glContext);
 }
 
 DLLSO void AppGLSetupViewPort(void *glContext,
